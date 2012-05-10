@@ -1,0 +1,4 @@
+# send all udp2log lines to file.log
+file 1 /var/log/udp2log/file.log
+# # use udp-filter to send all localhost traffic to filter.log
+pipe 1 /usr/bin/udp-filter -n 16 -d localhost > /var/log/udp2log/filter.log

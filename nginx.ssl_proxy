@@ -1,0 +1,32 @@
+# https proxy to http://localhost
+server {
+	listen   443;
+	server_name  localhost;
+	
+	ssl  on;
+	ssl_certificate  cert.pem;
+	ssl_certificate_key  cert.key;
+	
+	ssl_session_timeout  5m;
+	
+	ssl_protocols  SSLv2 SSLv3 TLSv1;
+	ssl_ciphers  ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+	ssl_prefer_server_ciphers   on;
+	
+	location / {
+		proxy_pass  http://localhost;
+		### force timeouts if one of backend is died ##
+    	proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
+
+		### Set headers ####
+    	proxy_set_header Host $host;
+    	proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+		### Most PHP, Python, Rails, Java App can use this header ###
+    	proxy_set_header X-Forwarded-Proto https;
+
+		### By default we don't want to redirect it ####
+		proxy_redirect     off;
+	}
+}
