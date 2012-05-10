@@ -1,12 +1,11 @@
 #!/bin/bash
 
-apt-get install nginx squid varnish apache2 udp2log udp-filter git-core realpath
+ # apt-get install nginx squid varnish apache2 udplog udp-filter git-core realpath
 
 test -d /var/log/udp2log || mkdir -vp /var/log/udp2log
 test -d /var/www/mediawiki || mkdir -vp /var/www/mediawiki
 test -d /var/www/mediawiki/core || (cd /var/www/mediawiki && git clone https://gerrit.wikimedia.org/r/p/mediawiki/core.git)
-
-mkdir -p /root/original_configs
+test -d mkdir -p /root/original_configs
 
 function create_link {
     file=$(realpath -s $1)
@@ -22,7 +21,7 @@ function create_link {
     ln -vs "${file}" "${target}";
 }
 
-create_link ./nginx.conf /etc/nginx.conf
+create_link ./nginx.conf /etc/nginx/nginx.conf
 create_link ./nginx.ssl_proxy /etc/nginx/sites-available/ssl_proxy
 create_link ./nginx.ssl_proxy /etc/nginx/sites-enabled/ssl_proxy
 
