@@ -14,11 +14,13 @@ function create_link {
     current_target=$(readlink -e ${target})
     
     if [ "${current_target}" == "${file}" ]; then
-        return;
+        return 1;
     fi
     
     test -f "${target}" && mv "${target}" "/root/original_configs/$(basename ${target})";
-    ln -vs "${file}" "${target}";
+    ln -vs "${file}" "${target}" && return 0
+    
+    return 1
 }
 
 create_link ./nginx.conf /etc/nginx/nginx.conf
