@@ -29,7 +29,7 @@ $wgScriptPath       = "";
 $wgScriptExtension  = ".php";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer           = "http://en.wikipedia.org:8082";
+$wgServer           = "http://en.wikipedia.org";
 
 ## The relative URL path to the skins directory
 $wgStylePath        = "$wgScriptPath/skins";
@@ -43,8 +43,8 @@ $wgLogo             = "$wgStylePath/common/images/wiki.png";
 $wgEnableEmail      = true;
 $wgEnableUserEmail  = true; # UPO
 
-$wgEmergencyContact = "apache@en.wikipedia.org:8082";
-$wgPasswordSender   = "apache@en.wikipedia.org:8082";
+$wgEmergencyContact = "apache@en.wikipedia.org";
+$wgPasswordSender   = "apache@en.wikipedia.org";
 
 $wgEnotifUserTalk      = false; # UPO
 $wgEnotifWatchlist     = false; # UPO

@@ -12,14 +12,14 @@
 
 # Source function library
 . /lib/lsb/init-functions
- set -x
+# set -x
 
 NAME=varnishncsa
 DESC="HTTP accelerator log deamon"
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/$NAME
 PIDFILE=/var/run/$NAME/$NAME.pid
-LOGFILE=/var/log/varnish/varnishncsa.log
+LOGFILE="127.0.0.1:8420"
 USER=varnishlog
 DAEMON_OPTS="-a -w ${LOGFILE} -D -P ${PIDFILE}"
 

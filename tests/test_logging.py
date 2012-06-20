@@ -6,10 +6,13 @@ import re
 import subprocess
 import time
 
+from palb.core import *
+
+
 # always send these request headers when testing.
 test_request_headers         = {
     'Accept-Language': 'da, en-gb;q=0.8, en;q=0.7',
-    'x-wap-profile':   'http://crazymobile.com/yeah.xml'
+    'X-Carrier':   'nonya'
 }
 
 # pattern is the following space separated fields:
@@ -29,17 +32,28 @@ test_request_headers         = {
 # x_forwarded_for
 # user_agent
 # accept_language
-# x_wap_profile|Profile|wap_profile
-log_format_pattern           = "^(?P<hostname>.+?) (?P<seq>\d+?) (?P<timestamp>.+?) (?P<request_time>.+?) (?P<remote_addr>.+?) (?P<status>.+?) (?P<bytes_sent>.+?) (?P<request_method>.+?) (?P<uri>.+?) (?P<proxy_host>.+?) (?P<content_type>.+?) (?P<referer>.+?) (?P<x_forwarded_for>.+?) (?P<user_agent>.+?) (?P<accept_language>.+?) (?P<x_wap_profile>.+)$"
+# x_carrier
+log_format_pattern           = "^(?P<hostname>.+?)\t(?P<seq>\d+?)\t(?P<timestamp>.+?)\t(?P<request_time>.+?)\t(?P<remote_addr>.+?)\t(?P<status>.+?)\t(?P<bytes_sent>.+?)\t(?P<request_method>.+?)\t(?P<uri>.+?)\t(?P<proxy_host>.+?)\t(?P<content_type>.+?)\t(?P<referer>.+?)\t(?P<x_forwarded_for>.+?)\t(?P<user_agent>.+?)\t(?P<accept_language>.+?)\t(?P<x_carrier>.+)$"
 log_format_regexp            = re.compile(log_format_pattern)
 
 
-def send_test_requests(url, request_count):
-    """Calls send_test_request request_count times."""
+def send_requests(url, request_count):
+    """Calls send_request request_count times."""
     for i in range(0,request_count):
-        send_test_request(url)
+        send_request(url)
+    # pool = URLGetterPool(10)
+    # pool.start()
+    # producer = URLProducer(pool.url_queue, ["http://en.wikipedia.org:3128"], request_count)
+    # stats = ResultStats()
+    # producer.start()
+    # pool.result_queue.get()
+    # for _ in xrange(request_count):
+    #     if not keep_processing:
+    #         break
+    #     stats.add(pool.result_queue.get())
+    # stats.stop()    
 
-def send_test_request(url):
+def send_request(url):
     """Calls request_url with the test_request_headers."""
     return request_url(url, test_request_headers)
 
@@ -137,7 +151,7 @@ def verify_log_line(line):
 	
 	# verify content_type
 	assert matches.has_key('content_type')
-	assert matches['content_type'] == 'text/html'
+	assert matches['content_type'].startswith('text/html')
 	
 	# verify referer
 	assert matches.has_key('referer')
@@ -155,16 +169,16 @@ def verify_log_line(line):
 	assert matches.has_key('accept_language')
 	assert len(matches['accept_language']) > 0
 	
-	# verify x_wap_profile
-	assert matches.has_key('x_wap_profile')
-	assert len(matches['x_wap_profile']) > 0
+	# verify x_carrier
+	assert matches.has_key('x_carrier')
+	assert len(matches['x_carrier']) > 0
 
 
 
 
 def request_and_verify(url, log_file, request_count=1, buffered=False):
 	# make a request
-	send_test_requests(url, request_count)
+	send_requests(url, request_count)
 	time.sleep(1)
 	
 	# udp2log buffers its output.
@@ -189,10 +203,10 @@ def test_nginx_access_log_format():
 # to do a bunch of requests before it will output.
 # 50 should do it.
 def test_nginx_udp2log_file_format():
-	request_and_verify(nginx_url, udp2log_file_log, 50, True)
+  request_and_verify(nginx_url, udp2log_file_log, 100, True)
 
 def test_nginx_udp2log_filter_format():
-	request_and_verify(nginx_url, udp2log_filter_log, 50, True)
+  request_and_verify(nginx_url, udp2log_filter_log, 100, True)
 
 
 
@@ -201,21 +215,21 @@ def test_nginx_udp2log_filter_format():
 
 # squid
 def test_squid_access_log_format():
-	request_and_verify(squid_url, squid_access_log)
+  request_and_verify(squid_url, squid_access_log)
 
 def test_squid_udp2log_file_format():
-	request_and_verify(squid_url, udp2log_file_log, 50, True)
+  request_and_verify(squid_url, udp2log_file_log, 100, True)
 
 def test_squid_udp2log_filter_format():
-	request_and_verify(squid_url, udp2log_filter_log, 50, True)
+  request_and_verify(squid_url, udp2log_filter_log, 100, True)
 
 
 
 
 # varnish doesn't have an access log, it only uses udp2log
 def test_varnish_udp2log_file_format():
-	request_and_verify(varnish_url, udp2log_file_log, 50, True)
+  request_and_verify(varnish_url, udp2log_file_log, 100, True)
 
 def test_varnish_udp2log_filter_format():
-	request_and_verify(varnish_url, udp2log_filter_log, 50, True)
+  request_and_verify(varnish_url, udp2log_filter_log, 100, True)
 
